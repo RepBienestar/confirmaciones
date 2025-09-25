@@ -1,0 +1,141 @@
+{
+    "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+    "version": 1,
+    "newProjectRoot": "projects",
+    "projects": {
+        "primeng-calendar-app": {
+            "projectType": "application",
+            "schematics": {
+                "@schematics/angular:component": {
+                    "standalone": false
+                },
+                "@schematics/angular:directive": {
+                    "standalone": false
+                },
+                "@schematics/angular:pipe": {
+                    "standalone": false
+                }
+            },
+            "root": "",
+            "sourceRoot": "src",
+            "prefix": "app",
+            "architect": {
+                "build": {
+                    "builder": "@angular-devkit/build-angular:browser",
+                    "options": {
+                        "allowedCommonJsDependencies": [
+                            "ng2-pdf-viewer",
+                            "pdfjs-dist",
+                            "pdfjs-dist/build/pdf.worker.entry",
+                            "ngx-file-drop",
+                            "lodash",
+                            "jquery",
+                            "flowbite",
+                            "sweetalert2",
+                            "flatpickr/dist/l10n/es.js"
+                        ],
+                        "outputPath": "dist",
+                        "index": "src/index.html",
+                        "main": "src/main.ts",
+                        "polyfills": [
+                            "zone.js"
+                        ],
+                        "tsConfig": "tsconfig.app.json",
+                        "assets": [
+                            "src/favicon.ico",
+                            "src/assets",
+                            {
+                                "glob": "**/*",
+                                "input": "./node_modules/pdfjs-dist/build/",
+                                "output": "./assets/pdfjs/"
+                            }
+                        ],
+                        "styles": [
+                            "src/styles.css",
+                            "node_modules/ngx-toastr/toastr.css",
+                            "node_modules/@fortawesome/fontawesome-free/css/all.min.css"
+                        ],
+                        "scripts": [
+                            "node_modules/jquery/dist/jquery.min.js",
+                            "node_modules/flowbite/dist/flowbite.min.js"
+                        ],
+                        "preserveSymlinks": true
+                    },
+                    "configurations": {
+                        "production": {
+                            "optimization": true,
+                            "sourceMap": false,
+                            "namedChunks": true,
+                            "extractLicenses": false,
+                            "fileReplacements": [
+                                {
+                                    "replace": "src/environments/environment.development.ts",
+                                    "with": "src/environments/environment.ts"
+                                }
+                            ],
+                            "budgets": [
+                                {
+                                    "type": "initial",
+                                    "maximumWarning": "2MB",
+                                    "maximumError": "4MB"
+                                },
+                                {
+                                    "type": "anyComponentStyle",
+                                    "maximumWarning": "4kB",
+                                    "maximumError": "8kB"
+                                }
+                            ],
+                            "outputHashing": "all"
+                        },
+                        "development": {
+                            "optimization": false,
+                            "extractLicenses": false,
+                            "sourceMap": true,
+                            "namedChunks": true
+                        }
+                    },
+                    "defaultConfiguration": "production"
+                },
+                "serve": {
+                    "builder": "@angular-devkit/build-angular:dev-server",
+                    "options": {
+                        "buildTarget": "primeng-calendar-app:build:development"
+                    },
+                    "configurations": {
+                        "production": {
+                            "buildTarget": "primeng-calendar-app:build:production"
+                        },
+                        "development": {
+                            "buildTarget": "primeng-calendar-app:build:development"
+                        }
+                    },
+                    "defaultConfiguration": "development"
+                },
+                "extract-i18n": {
+                    "builder": "@angular-devkit/build-angular:extract-i18n"
+                },
+                "test": {
+                    "builder": "@angular-devkit/build-angular:karma",
+                    "options": {
+                        "polyfills": [
+                            "zone.js",
+                            "zone.js/testing"
+                        ],
+                        "tsConfig": "tsconfig.spec.json",
+                        "assets": [
+                            "src/favicon.ico",
+                            "src/assets"
+                        ],
+                        "styles": [
+                            "src/styles.css"
+                        ],
+                        "scripts": []
+                    }
+                }
+            }
+        }
+    },
+    "cli": {
+        "analytics": "4e67e87a-ce3f-4522-9157-942ac317c162"
+    }
+}

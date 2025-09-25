@@ -1,0 +1,16 @@
+.file-viewer {
+    text-align: center;
+    padding: 20px;
+}
+
+.pdf-viewer {
+    margin-top: 20px;
+}
+
+.pdf-controls {
+    margin-top: 10px;
+}
+
+.pdf-controls button {
+    margin: 5px;
+}

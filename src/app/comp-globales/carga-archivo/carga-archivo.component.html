@@ -1,0 +1,145 @@
+<div class="w-full max-w-6xl mx-auto" *ngIf="mostrarCarga">
+
+    <div [ngClass]="{
+            'border-blue-500 bg-blue-50 ring-2 ring-blue-200': isDragging
+          }" class="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-white transition-all duration-200">
+    
+        <ngx-file-drop dropZoneLabel="Suelta los archivos aquí" 
+            (onFileDrop)="dropped($event)" 
+            (onFileOver)="fileOver(true)"
+            (onFileLeave)="fileOver(false)" 
+            [multiple]="configCargaAr.multiple" 
+            [directory]="false"
+            [accept]="configCargaAr.formatos">
+            <ng-template ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
+                <div class="text-center text-gray-600 text-sm">
+                    <div class="flex flex-col items-center justify-center gap-3">
+                        <div class="flex items-center gap-2">
+                            <svg *ngIf="isDragging" class="animate-spin h-5 w-5 text-blue-600"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                                </circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8z" />
+                            </svg>
+    
+                            <span *ngIf="isDragging">Archivo detectado...</span>
+    
+                            <span *ngIf="!isDragging">
+                                Arrastra los archivos aquí o
+                                <button type="button"
+                                    class="ml-2 inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 transition"
+                                    (click)="openFileSelector()">
+                                    Cargar Archivos
+                                </button>
+                            </span>
+                        </div>
+    
+                        <!-- Botón cancelar visible sólo en estado de arrastre -->
+                        <button *ngIf="isDragging" type="button"
+                            class="inline-flex items-center px-3 py-1.5 text-sm rounded-md bg-red-100 text-red-600 hover:bg-red-200 font-medium transition"
+                            (click)="isDragging = false">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            </ng-template>
+        </ngx-file-drop>
+    </div>
+
+
+    <!-- Tabla de archivos -->
+    <div class="mt-6" *ngIf="file.length">
+        <div class="overflow-x-auto rounded-lg shadow">
+            <table class="min-w-full text-sm text-left text-gray-700 dark:text-gray-200">
+                <thead class="bg-gray-800 text-white text-xs uppercase">
+                    <tr>
+                        <th class="px-6 py-3">Tipo</th>
+                        <th class="px-6 py-3">Nombre</th>
+                        <th class="px-6 py-3">Tamaño</th>
+                        <th class="px-6 py-3 text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-900">
+                    <tr *ngFor="let archivo of file" class="hover:bg-blue-50 dark:hover:bg-gray-700 transition">
+                        <td class="px-6 py-4">
+                            <i class="fa-solid {{ getIconMime(archivo.type) }} fa-lg"></i>
+                        </td>
+                        <td class="px-6 py-4 truncate">{{ archivo.name }}</td>
+                        <td class="px-6 py-4">{{ archivo.size | number }} bytes</td>
+                        <td class="px-6 py-4 text-center flex justify-center gap-2">
+                            <!-- Ver -->
+                            <app-comp-globales mensajeTooltip="Ver Adjunto">
+                                <button type="button" (click)="verArchivo(archivo)"
+                                    class="p-2.5 rounded-full border border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white transition">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </app-comp-globales>
+
+                            <!-- Eliminar -->
+                            <app-comp-globales mensajeTooltip="Eliminar Adjunto">
+                                <button type="button" (click)="eliminarArchivo(archivo)"
+                                    class="p-2.5 rounded-full border border-red-500 text-red-600 hover:bg-red-600 hover:text-white transition">
+                                    <i class="fa-regular fa-trash-can"></i>
+                                </button>
+                            </app-comp-globales>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div #modalImagen tabindex="-1"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4 overflow-auto transition-opacity duration-300"
+    [ngClass]="{ 'hidden': !mostraModal }">
+    <div class="relative w-full max-w-6xl bg-white rounded-xl shadow-xl dark:bg-gray-800">
+        <!-- Modal header -->
+        <div
+            class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-lg">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                Visualizador de Documento
+            </h3>
+            <button type="button" (click)="toggleModal('modalImagen', 'close')"
+                class="p-2 text-gray-400 rounded-full hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-white">
+                <span class="sr-only">Cerrar</span>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Modal body -->
+        <div class="px-6 py-5 max-h-[80vh] overflow-auto">
+            <ng-container *ngIf="url.length && esImagen">
+                <div class="w-full">
+                    <pdf-viewer [src]="url" [rotation]="0" [original-size]="false" [show-all]="true"
+                        [fit-to-page]="false" [zoom]="1" [zoom-scale]="'page-width'" [stick-to-page]="false"
+                        [render-text]="true" [external-link-target]="'blank'" [autoresize]="true" [show-borders]="true"
+                        class="w-full h-[75vh]"></pdf-viewer>
+                </div>
+            </ng-container>
+
+            <ng-container *ngIf="!esImagen">
+                <div class="flex justify-center items-center">
+                    <img [src]="url" alt="Documento" class="rounded-lg object-contain max-h-[75vh] max-w-full shadow" />
+                </div>
+            </ng-container>
+        </div>
+
+        <!-- Modal footer -->
+        <div class="flex justify-end px-6 py-4 border-t border-gray-200 dark:border-gray-700 rounded-b-lg">
+            <button type="button" (click)="toggleModal('modalImagen', 'close')"
+                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-800 bg-gray-100 rounded-md hover:bg-gray-200 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+                Cerrar
+            </button>
+        </div>
+    </div>
+</div>
+
